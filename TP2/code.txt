@@ -1,0 +1,426 @@
+#include <stdio.h>
+#include <stdlib.h>
+#include <stdbool.h>
+#include <time.h>
+
+
+
+/* run this program using the console pauser or add your own getch, system("pause") or input loop */
+
+
+//************************* Algo 1 - Tris par selection *******************************************************************************
+
+void Tri_par_selection(unsigned long long *Tab, unsigned long long n){
+    unsigned long long i, min, j, temp;
+    for(i=0; i<n-1; i++){
+        min = i;
+        for(j=i+1; j<n; j++){
+        	if(Tab[j] < Tab[min]){
+        		min = j;
+                temp = Tab[i];
+                Tab[i] =Tab[min];
+                Tab[min] = temp;
+                min = i;
+			}
+
+        }
+    }
+}
+
+//************************* Algo 2 - par insertion *******************************************************************************
+
+void tri_insertion(unsigned long long *T, unsigned long long n)
+{
+	unsigned long long i, k, c, p;
+	for(i=1; i < n; i++)
+	{
+		c = T[i];
+		p = 0;
+		while (T[p] < c){
+		    // on cherche la position p que l' on va affecter à l'élément
+	        p++;
+		}
+		for (k=i-1; k>=p ;k--){
+			// on décale les nombres
+	    	T[k+1] = T[k];
+		}
+		// on écrit l'élément
+		T[p] = c ;
+   }
+}
+
+
+//************************* Algo 3 - Tris par bulle *******************************************************************************
+
+void tri_bulle(unsigned long long *T,unsigned long long n)
+{
+	unsigned long long flag, i, c;
+    flag=1;
+    while (flag)
+    {
+    	//tant qu'on modifie le tableau
+        flag=0; i=0;
+        while (i<n-1)
+        {
+        	if(T[i]>T[i+1])
+        	{ //si élément est supérieur au suivant on échange les deux nombres
+                c=T[i];
+                T[i]=T[i+1];
+                T[i+1]=c;
+                flag=1;
+			}
+			i++;
+		}
+	}
+}
+
+
+
+//************************* Algo 4 - Tris rapide *******************************************************************************
+
+void changer(unsigned long long *T, unsigned long long i, unsigned long long j)
+{
+    unsigned long long echange;
+    echange=T[i];
+    T[i]=T[j];
+    T[j]=echange;
+}
+
+unsigned long long partition(unsigned long long*tableau, unsigned long long deb, unsigned long long fin)
+{
+	unsigned long long compt=deb;
+	unsigned long long pivot=tableau[deb];
+	unsigned long long i;
+	for(i=deb+1;i<=fin;i++){
+		if(tableau[i]<pivot){
+			compt++;
+            changer (tableau, compt, i);
+		}
+	}
+	changer (tableau, compt, deb) ;
+    return (compt) ;
+}
+
+
+
+void tri_rapide_bis(unsigned long long*tableau,unsigned long long debut,unsigned long long fin)
+{
+	if (debut<fin){
+		unsigned long long pivot=partition(tableau, debut, fin);
+        tri_rapide_bis(tableau, debut, pivot-1);
+        tri_rapide_bis (tableau, pivot+1, fin);
+	}
+}
+
+
+
+
+void tri_rapide(unsigned long long*tableau,unsigned long long n)
+{
+	tri_rapide_bis(tableau,0,n-1);
+}
+
+
+//*************************** Algo 5 - Tris par fusion *******************************************************************************
+
+void triFusion(unsigned long long i, unsigned long long j, unsigned long long tab[], unsigned long long tmp[]) {
+    if(j <= i){ return;}
+
+    unsigned long long m = (i + j) / 2;
+
+    triFusion(i, m, tab, tmp); //trier la moitié gauche récursivement
+    triFusion(m + 1, j, tab, tmp); //trier la moitié droite récursivement
+    unsigned long long pg = i; //pg pointe au début du sous-tableau de gauche
+    unsigned long long pd = m + 1; //pd pointe au début du sous-tableau de droite
+    unsigned long long c; //compteur
+// on boucle de i à j pour remplir chaque élément du tableau final fusionné
+    for(c = i; c <= j; c++) {
+        if(pg == m + 1) { //le pointeur du sous-tableau de gauche a atteint la limite
+            tmp[c] = tab[pd];
+            pd++;
+        }else if (pd == j + 1) { //le pointeur du sous-tableau de droite a atteint la limite
+            tmp[c] = tab[pg];
+            pg++;
+        }else if (tab[pg] < tab[pd]) { //le pointeur du sous-tableau de gauche pointe vers un élément plus petit
+            tmp[c] = tab[pg];
+            pg++;
+        }else { //le pointeur du sous-tableau de droite pointe vers un élément plus petit
+            tmp[c] = tab[pd];
+            pd++;
+        }
+    }
+    for(c = i; c <= j; c++) { //copier les éléments de tmp[] à tab[]
+        tab[c] = tmp[c];
+    }
+}
+
+//************************** Algo 6 - Tris par tas *******************************************************************************
+
+void echanger(unsigned long long*T, unsigned long long i, unsigned long long j)
+{
+	unsigned long long echange;
+    //permutation pour rendre s fils inferieurs à leurs père
+    echange=T[i];
+    T[i]=T[j];
+    T[j]=echange;
+}
+
+
+void remonter (unsigned long long*T, unsigned long long n, unsigned long long i)
+{
+	if (i==0) return;
+    if (T[i]>T[i/2]){
+    	echanger (T, i, i/2);
+        //si la valeur du fils est inferieur on le remonte
+        remonter (T, n, i/2);
+	}
+}
+
+
+void redescendre ( unsigned long long*T, const unsigned long long n, unsigned long long i)
+{
+	unsigned long long imax;
+    //pour s'arreter et mettre la plus grande valeur a la fin
+    if (2*i+1>=n) return;
+    if (T[2*i+1] > T[2*i])
+    imax=2*i+1; // droite indice
+    else
+    imax=2*i; //guauche
+    if (T[imax] > T[i])
+	{
+		echanger (T, imax, i);
+        redescendre (T, n, imax);
+	}
+}
+
+
+void organiser(unsigned long long*T, unsigned long long n )
+{
+	unsigned long long i;
+    for(i=1;i<n; i++)
+    // organiser le tableau sous forme d'arbre (tas) les peres > fils
+    remonter (T, n, i);
+}
+
+
+void Tri_Arbre(unsigned long long*T, const unsigned long long n )
+{
+	unsigned long long i;
+    organiser(T, n);
+    for(i=n-1 ; i>0 ; i--)
+    {
+    	echanger(T, 0, i);
+        //1a derniere valeur va eter remplacé par a racine la plus grande
+        // valeur qui se trouve au debut du tablea
+        redescendre (T, i, 0);
+	}
+}
+
+
+
+
+
+
+
+int main(int argc, char** argv) {
+
+    // la declaration des var pour la recuperation des nbr du fichier
+	unsigned long long   currentNumber;
+    char   *endChar;
+    char  buffer1[10000], buffer2[10000], buffer3[10000];
+    unsigned long long i =0, j=0, k=0;
+    int continu, choix;
+
+    FILE *fp1, *fp2, *fp3;
+
+    // le 1er tableau
+    unsigned long long tableu1[10000],tableu2[10000],tableu3[10000];
+
+    // les var de calcule du temps d'execution
+    clock_t t11, t12, t21, t22, t31, t32;
+    double delta1,delta2,delta3 ;
+
+
+
+
+
+
+
+  printf("\n Choisissez la taille de votre tableau:\n1 ->Pour la taille 10000.\n2 ->Pour la taille 50000.\n");
+
+    do{
+        printf("\nMon choix est:\t");
+        scanf("%d",&choix);
+        switch(choix){
+        case 1:
+            printf("\nLes resultats pour la taille de 10000\n\n");
+
+
+            //ouverture fichier Les données du tableau sont triées en bon ordre:
+            fp1 = fopen("C:/Users/AHM/Desktop/master/S1/Complexite/TP/TP2/listebo1.txt","r");
+           if(NULL == fp1)
+           {
+             return(1);
+           }
+
+           //une boucle qui prend chaque ligne les unes apres les autres jusqu'à la fin du fichier
+           while(NULL != fgets(buffer1, 10000, fp1))
+           {
+            //printf("nouvelle ligne: \n");
+             currentNumber = strtol(buffer1, &endChar, 10);
+             tableu1[i] = currentNumber;
+            //on entre dans la ligne pour reccuperer les nbr
+            while(*endChar != (char) NULL)
+            {
+               char* ptr = endChar+1;
+               currentNumber = strtol(ptr, &endChar, 10);
+               i++;
+               tableu1[i] = currentNumber;
+            }
+          }
+
+
+
+          //ouverture fichier Les données du tableau sont triées en ordre inverse:
+           fp2 = fopen("C:/Users/AHM/Desktop/master/S1/Complexite/TP/TP2/listeio1.txt","r");
+           if(NULL == fp2)
+           {
+             return(1);
+           }
+
+           //une boucle qui prend chaque ligne les unes apres les autres jusqu'à la fin du fichier
+           while(NULL != fgets(buffer2, 10000, fp2))
+           {
+            //printf("nouvelle ligne: \n");
+             currentNumber = strtol(buffer2, &endChar, 10);
+             tableu1[j] = currentNumber;
+            //on entre dans la ligne pour reccuperer les nbr
+            while(*endChar != (char) NULL)
+            {
+               char* ptr = endChar+1;
+               currentNumber = strtol(ptr, &endChar, 10);
+               j++;
+               tableu2[j] = currentNumber;
+            }
+          }
+
+
+          //ouverture fichier Les données du tableau ne sont pas triées:
+            fp3 = fopen("C:/Users/AHM/Desktop/master/S1/Complexite/TP/TP2/listent1.txt","r");
+           if(NULL == fp3)
+           {
+             return(1);
+           }
+
+           //une boucle qui prend chaque ligne les unes apres les autres jusqu'à la fin du fichier
+           while(NULL != fgets(buffer3, 10000, fp3))
+           {
+            //printf("nouvelle ligne: \n");
+             currentNumber = strtol(buffer3, &endChar, 10);
+             tableu1[k] = currentNumber;
+            //on entre dans la ligne pour reccuperer les nbr
+            while(*endChar != (char) NULL)
+            {
+               char* ptr = endChar+1;
+               currentNumber = strtol(ptr, &endChar, 10);
+               k++;
+               tableu3[k] = currentNumber;
+            }
+          }
+
+
+
+          //***************************calcule du temps d'excecution
+          t11 = clock();
+          // appel au fonction de tri d'un tableau
+          Tri_par_selection(tableu1,10000);
+          t12 = clock();
+          delta1 = (double) (t12-t11)/CLOCKS_PER_SEC;
+
+          t21 = clock();
+          // appel au fonction de tri d'un tableau
+          Tri_par_selection(tableu2,10000);
+          t22 = clock();
+          delta2 = (double) (t22-t21)/CLOCKS_PER_SEC;
+
+          t31 = clock();
+          // appel au fonction de tri d'un tableau
+          Tri_par_selection(tableu3,10000);
+          t32 = clock();
+          delta3 = (double) (t32-t31)/CLOCKS_PER_SEC;
+
+
+          //L'AFFICHAGE DES RESULTATS******
+
+          printf("\t\tLE TRI PAR SELECTION\n\n");
+          printf("****Les donnees du tableau sont triees en bon ordre****\n");
+          printf("=>Le temps d'execution: (%lf)\n\n",delta1);
+          printf("****Les donnees du tableau sont triees en ordre inverse****\n");
+          printf("=>Le temps d'execution: (%lf\)\n\n",delta2);
+          printf("****Les donnees du tableau ne sont pas triees****\n");
+          printf("=>Le temps d'execution: (%lf)\n\n",delta3);
+
+          break;
+
+
+        default:
+            printf("\nErreur! Choix n'existe pas.\n\n");
+    }
+
+    printf("\n\nVoullez vous reexecuter le promgarmme? taper (1) si oui / (0) si non: \t");
+    scanf("%d",&continu);
+
+    }while(continu == 1);
+
+
+
+
+//l'affichage de tabkeau trie
+  for(i=0;i<10000;i++){
+    printf("currentNumber = %llu\n",tableu3[i]);
+  }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+    //	int i;
+//	int tmp[6];
+//    int T[6] = {23,10,50,9,12,99};
+//   triFusion(0, 5, T, tmp);
+//
+//
+//    //Tri_Arbre(T, 6);
+//
+//
+//    for(i=0;i<=5;i++){
+//        printf("T[%llu] = %llu\n",i,T[i]);
+    //    }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+	return 0;
+}
